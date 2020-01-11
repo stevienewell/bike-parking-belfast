@@ -1,0 +1,15 @@
+service: opendatani
+
+frameworkVersion: ">=1.4.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  belfastCycleParking:
+    handler: index.bikeparking
+    environment:
+      MAPBOX_APIKEY: INSERT_API_KEY
+    events:
+      - alexaSkill: INSERT_SKILL_ARN
