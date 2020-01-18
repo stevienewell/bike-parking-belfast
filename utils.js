@@ -14,10 +14,14 @@ module.exports.closestBikeParking = (latitude, longitude) => {
     jsonData["longitude"] = feature.geometry.coordinates[0];
     jsonData["id"] = feature.properties.Google_Str;
     jsonData["address"] = `${
-      feature.properties.Building_N !== undefined
+      feature.properties.Building_N !== undefined &&
+      feature.properties.Building_N !== null
         ? feature.properties.Building_N
         : ""
     } ${feature.properties.Street_Roa}`;
+    jsonData["standType"] = feature.properties.Stand_Type;
+    jsonData["capacity"] = feature.properties.Capacity;
+    jsonData["building"] = feature.properties.Building_B;
     cycleStations.push(jsonData);
   });
 
@@ -42,13 +46,14 @@ const getMapImage = (latitude, longitude) => {
     height: 480,
     position: {
       coordinates: [longitude, latitude],
-      zoom: 20
+      zoom: 19
     },
     overlays: [
       {
         marker: {
           coordinates: [longitude, latitude],
-          color: "#F00"
+          color: "#F00",
+          size: "large"
         }
       }
     ],

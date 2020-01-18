@@ -9,7 +9,7 @@ const LaunchRequestHandler = {
   },
   handle(handlerInput) {
     const speakOutput =
-      "Welcome, you can ask me where you can park your bicycle. Which would you like to try?";
+      "Welcome, you can ask me where you can park your bicycle.";
     return handlerInput.responseBuilder
       .speak(speakOutput)
       .reprompt(speakOutput)
@@ -26,39 +26,50 @@ const FindClosestParkingLocationHandler = {
     );
   },
   handle(handlerInput) {
-    console.log(
-      handlerInput.requestEnvelope.context.System.device.supportedInterfaces
-        .Geolocation
-    );
-
     const isGeoSupported =
       handlerInput.requestEnvelope.context.System.device.supportedInterfaces
         .Geolocation;
     if (!isGeoSupported) {
       return handlerInput.responseBuilder
-        .speak("Please enable location services to use this skill")
+        .speak(
+          `I'm sorry, your device does not support location services capabilities. 
+          To use this skill, please try with an Alexa device which supports this.`
+        )
         .getResponse();
     }
 
-    const geoObject = handlerInput.requestEnvelope.context.Geolocation;
-    const latitude = geoObject.coordinate.latitudeInDegrees;
-    const longitude = geoObject.coordinate.longitudeInDegrees;
+    var geoObject = handlerInput.requestEnvelope.context.Geolocation;
+    if (!geoObject || !geoObject.coordinate) {
+      return handlerInput.responseBuilder
+        .speak(
+          "Location Services permission is required to use this feature. Please enable it in the Alexa app."
+        )
+        .withAskForPermissionsConsentCard([
+          "alexa::devices:all:geolocation:read"
+        ])
+        .getResponse();
+    } else {
+      const latitude = geoObject.coordinate.latitudeInDegrees;
+      const longitude = geoObject.coordinate.longitudeInDegrees;
 
-    const result = Utils.closestBikeParking(latitude, longitude);
-    const mapImageUrl = Utils.getMapImage(result.latitude, result.longitude);
+      const result = Utils.closestBikeParking(latitude, longitude);
+      const mapImageUrl = Utils.getMapImage(result.latitude, result.longitude);
 
-    const parkingDescription = result.address;
+      const parkingAddress = result.address;
 
-    const speakOutput = `The closest parking spot is ${parkingDescription}`;
-    return handlerInput.responseBuilder
-      .speak(speakOutput)
-      .withStandardCard(
-        "Nearest Parking",
-        parkingDescription,
-        mapImageUrl,
-        mapImageUrl
-      )
-      .getResponse();
+      const parkingDescription = `Near: ${result.building}\rType: ${result.standType}\rCapacity: ${result.capacity}`;
+
+      const speakOutput = `There is a ${result.standType} located at ${parkingAddress}. The closest building is ${result.building}.`;
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .withStandardCard(
+          parkingAddress,
+          parkingDescription,
+          mapImageUrl,
+          mapImageUrl
+        )
+        .getResponse();
+    }
   }
 };
 
