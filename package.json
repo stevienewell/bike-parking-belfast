@@ -9,7 +9,7 @@
   "author": "stevienewell",
   "license": "ISC",
   "dependencies": {
-    "@mapbox/mapbox-sdk": "^0.9.0",
+    "@mapbox/mapbox-sdk": "^0.14.0",
     "ask-sdk-core": "^2.0.0",
     "ask-sdk-model": "^1.0.0",
     "follow-redirects": "^1.9.0",
